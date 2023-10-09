@@ -1,7 +1,3 @@
-//
-// Created by niko1 on 19.10.2021.
-//
-
 #ifndef REVERSI_GAME_H
 #define REVERSI_GAME_H
 
@@ -10,37 +6,34 @@
 #include <set>
 #include <map>
 #include <sstream>
-#include <iostream>
 
 typedef std::array<std::array<unsigned short, 8>, 8> Board;
 
 class Game {
-    Board currentState = getInitialState();
-    // 0 - empty 1 = black, 2 = white
+    Board currentState = initilize();
     unsigned short my_color = 2;
     unsigned short foreign_color = 1;
-    static std::vector<std::vector<int>> pagodaCoeffs;
     const int ALPHA_BETA_DEPTH = 5;
 public:
     Game(unsigned short ourColor);
 
-    Board getInitialState();
+    Board initilize();
 
-    static bool evalDirection(int dir, int &i, int &j);
+    static bool evalDirection(int dir, int& i, int& j);
 
-    std::map<int, std::vector<std::pair<int, int>>> get_moves(Board f,int flag) const;
+    std::map<int, std::vector<std::pair<int, int>>> get_moves(Board f, int flag) const;
 
     bool is_goal(Board f);
 
-    void printField();
+    void print_board();
 
-    Board makeMove(const Board &f, int move, const std::vector<std::pair<int, int>> &affectedCheckers, bool isOurMove = true) const;
+    Board makeMove(const Board& f, int move, const std::vector<std::pair<int, int>>& affectedCheckers, bool isOurMove = true) const;
 
-    void makeBotMove(const std::string &botMove, bool isOurMove);
+    void makeBotMove(const std::string& botMove, bool isOurMove);
 
     static std::string get_str_move(int move);
 
-    static int debotifyMove(std::string move);
+    static int move_to_int(std::string move);
 
     int h(Board f) const;
 
@@ -52,12 +45,8 @@ public:
 
     bool enemy_has_moves();
 
-    void printSituation(){
-        std::cout << get_moves(currentState, 0).size() << " " << get_moves(currentState,1).size() << std::endl;
-    }
-
-    bool checkMove(std::string move){
-        int parsedMove = debotifyMove(move);
+    bool checkMove(std::string move) {
+        int parsedMove = move_to_int(move);
         return get_moves(currentState, 0).count(parsedMove) > 0;
     }
 };

@@ -26,7 +26,7 @@ void PVE(Game g, int player)
         {
             g.makeBotMove(move, true);
             std::cout << " Our move: " << move << std::endl;
-            g.printField();
+            g.print_board();
             std::string state = g.get_winner();
             switch (state[0])
             {
@@ -63,7 +63,7 @@ void PVE(Game g, int player)
         }
         g.makeBotMove(oppMove, false);
         std::cout << " Opponent move: " << oppMove << std::endl;
-        g.printField();
+        g.print_board();
         std::cout << std::endl << std::endl;
     }
 }
@@ -77,20 +77,18 @@ int main(int argc, char* argv[])
     {
         player = (int)(*argv[1] - '0') + 1;
         Game g(player);
-        g.printField();
+        g.print_board();
         if (player == 2) {
             std::string oppMove;
             std::cin >> oppMove;
             g.makeBotMove(oppMove, false);
             std::cout << "Opponent move: " << oppMove << std::endl;
-            g.printField();
+            g.print_board();
             std::cout << std::endl << std::endl;
         }
         while (true)
         {
-            g.printSituation();
             auto move = g.decideHowToMove();
-
             if (move == "skip") {
                 std::cout << "No moves " << std::endl;
             }
@@ -113,7 +111,7 @@ int main(int argc, char* argv[])
                 std::cout << player;
                 std::cout << " Our move: " << move << std::endl;
                 std::cerr << move << std::endl;
-                g.printField();
+                g.print_board();
                 std::string state = g.get_winner();
                 std::cout << "state: " << state << std::endl;
                 switch (state[0])
@@ -138,7 +136,6 @@ int main(int argc, char* argv[])
                 continue;
             }
             std::cout << "I'm " << player << " waiting for ur move" << std::endl;
-            g.printSituation();
             std::cin >> oppMove;
             if (!g.checkMove(oppMove)) {
                 std::cout << "Unfair Move!" << std::endl;
@@ -152,7 +149,7 @@ int main(int argc, char* argv[])
             g.makeBotMove(oppMove, false);
             std::cout << player;
             std::cout << " Opponent move: " << oppMove << std::endl;
-            g.printField();
+            g.print_board();
             std::cout << std::endl << std::endl;
         }
     }
@@ -160,13 +157,13 @@ int main(int argc, char* argv[])
     else
     {
         Game g(player);
-        g.printField();
+        g.print_board();
         if (player == 2) {
             std::string oppMove;
             std::cin >> oppMove;
             g.makeBotMove(oppMove, false);
             std::cout << "Opponent move: " << oppMove << std::endl;
-            g.printField();
+            g.print_board();
             std::cout << std::endl << std::endl;
         }
         PVE(g, player);
