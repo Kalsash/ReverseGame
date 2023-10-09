@@ -13,11 +13,11 @@ class Game {
     Board currentState = initilize();
     unsigned short my_color = 2;
     unsigned short foreign_color = 1;
-    const int ALPHA_BETA_DEPTH = 5;
 public:
     Game(unsigned short ourColor);
 
     Board initilize();
+    int ALPHA_BETA_DEPTH = 5;
 
     static bool evalDirection(int dir, int& i, int& j);
 

@@ -75,8 +75,21 @@ int main(int argc, char* argv[])
     // Если запущена дуэль
     if (argc > 1)
     {
-        player = (int)(*argv[1] - '0') + 1;
+        int d = -1;
+        if (argc == 2)
+        {
+            player = (int)(*argv[1] - '0') + 1;
+        }
+        else
+        {
+            player = (int)(*argv[3] - '0') + 1;
+            d = (int)*argv[2] -48;
+        }
         Game g(player);
+        if (d > 0)
+        {
+            g.ALPHA_BETA_DEPTH = d;
+        }
         g.print_board();
         if (player == 2) {
             std::string oppMove;
