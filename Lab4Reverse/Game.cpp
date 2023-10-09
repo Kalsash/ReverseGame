@@ -269,7 +269,31 @@ int Game::h(Board f) const {
             }
         }
     }
-    return (int)(1500 * corner + 500 * mobility + 500 * piece_count);
+    // ќценка стабильности
+    double stability = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (f[i][j] == my_color) {
+                stability++;
+                if ((i == 0 || i == 7) && (j == 0 || j == 7)) {
+                    stability += 2; // угловые клетки имеют большую стабильность
+                }
+                else if (i == 0 || i == 7 || j == 0 || j == 7) {
+                    stability += 1; // крайние клетки имеют меньшую стабильность, но больше, чем остальные
+                }
+            }
+            else if (f[i][j] == foreign_color) {
+                stability--;
+                if ((i == 0 || i == 7) && (j == 0 || j == 7)) {
+                    stability -= 2;
+                }
+                else if (i == 0 || i == 7 || j == 0 || j == 7) {
+                    stability -= 1;
+                }
+            }
+        }
+    }
+    return (int)(1500 * corner + 500 * mobility + 500 * piece_count + 100*stability);
 }
 
 int Game::alphaBeta(Board f, int depth, int alpha, int beta, bool isMax, bool returnMove) {
