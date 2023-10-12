@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Game.h"
+#include "../../reversi/Game.h"
 
 //ctor
 Game::Game(unsigned short player)
@@ -109,7 +110,6 @@ std::string Game::get_str_move(int move)
     return s + std::to_string(move / 8 + 1);
 }
 
-bool switcher = 1;
 void Game::print_board() {
     auto moves = get_moves(currentState, switcher);
     switcher = switcher ? 0 : 1;
@@ -131,10 +131,10 @@ void Game::print_board() {
                 std::cout << "   -";
                 break;
             case 1:
-                std::cout << "   X";
+                std::cout << "   x";
                 break;
             default:
-                std::cout << "   Y";
+                std::cout << "   o";
                 break;
             }
         }
@@ -188,7 +188,6 @@ std::map<int, std::vector<std::pair<int, int>>> Game::get_moves(Board f, int fla
     }
     return res;
 }
-
 Board Game::makeMove(const Board& f, int move, const std::vector<std::pair<int, int>>& affectedCheckers, bool isOurMove) const {
     Board newField;
     std::copy(f.begin(), f.end(), newField.begin());
@@ -270,6 +269,7 @@ int Game::h(Board f) const {
         }
     }
     // Оценка стабильности
+    //количество устойчивых фишек, которые не могут быть перевернуты противником.
     double stability = 0;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -279,7 +279,7 @@ int Game::h(Board f) const {
                     stability += 2; // угловые клетки имеют большую стабильность
                 }
                 else if (i == 0 || i == 7 || j == 0 || j == 7) {
-                    stability += 1; // крайние клетки имеют меньшую стабильность, но больше, чем остальные
+                    stability += 1; // крайние клетки имеют меньшую стабильность
                 }
             }
             else if (f[i][j] == foreign_color) {
@@ -293,7 +293,7 @@ int Game::h(Board f) const {
             }
         }
     }
-    return (int)(1500 * corner + 500 * mobility + 500 * piece_count + 100*stability);
+    return (int)(1500 * corner + 500 * mobility + 500 * piece_count + 0*stability);
 }
 
 int Game::alphaBeta(Board f, int depth, int alpha, int beta, bool isMax, bool returnMove) {

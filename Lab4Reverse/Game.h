@@ -27,6 +27,8 @@ public:
 
     void print_board();
 
+    bool switcher = 1;
+
     Board makeMove(const Board& f, int move, const std::vector<std::pair<int, int>>& affectedCheckers, bool isOurMove = true) const;
 
     void makeBotMove(const std::string& botMove, bool isOurMove);

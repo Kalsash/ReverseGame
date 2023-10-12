@@ -48,6 +48,7 @@ void PVE(Game g, int player)
 
         if (g.enemy_has_moves()) {
             std::cout << "Oh, u have no moves!" << std::endl;
+            g.switcher = g.switcher ? 0 : 1;
             continue;
         }
         cout << "Make ur move, human" << endl;
@@ -146,6 +147,7 @@ int main(int argc, char* argv[])
 
             if (g.enemy_has_moves()) {
                 std::cout << "Oh, u have no moves!" << std::endl;
+                g.switcher = g.switcher ? 0 : 1;
                 continue;
             }
             std::cout << "I'm " << player << " waiting for ur move" << std::endl;
@@ -153,11 +155,6 @@ int main(int argc, char* argv[])
             if (!g.checkMove(oppMove)) {
                 std::cout << "Unfair Move!" << std::endl;
                 std::cin >> oppMove;
-            }
-            if (!g.checkMove(oppMove)) {
-                std::cout << "Well, I am offended right now. Bye." << std::endl;
-                system("pause");
-                throw std::exception("CHEATER!...");
             }
             g.makeBotMove(oppMove, false);
             std::cout << player;
