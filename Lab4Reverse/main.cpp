@@ -24,7 +24,7 @@ void PVE(Game g, int player)
         }
         if (move != "lose" && move != "win" && move != "skip")
         {
-            g.makeBotMove(move, true);
+            g.bot_move(move, true);
             std::cout << " Our move: " << move << std::endl;
             g.print_board();
             std::string state = g.get_winner();
@@ -62,7 +62,7 @@ void PVE(Game g, int player)
             system("pause");
             throw std::exception("CHEATER!...");
         }
-        g.makeBotMove(oppMove, false);
+        g.bot_move(oppMove, false);
         std::cout << " Opponent move: " << oppMove << std::endl;
         g.print_board();
         std::cout << std::endl << std::endl;
@@ -89,13 +89,13 @@ int main(int argc, char* argv[])
         Game g(player);
         if (d > 0)
         {
-            g.ALPHA_BETA_DEPTH = d;
+            g.DEPTH = d;
         }
         g.print_board();
         if (player == 2) {
             std::string oppMove;
             std::cin >> oppMove;
-            g.makeBotMove(oppMove, false);
+            g.bot_move(oppMove, false);
             std::cout << "Opponent move: " << oppMove << std::endl;
             g.print_board();
             std::cout << std::endl << std::endl;
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 
             if (move != "lose" && move != "win" && move != "skip")
             {
-                g.makeBotMove(move, true);
+                g.bot_move(move, true);
                 std::cout << player;
                 std::cout << " Our move: " << move << std::endl;
                 std::cerr << move << std::endl;
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
                 std::cout << "Unfair Move!" << std::endl;
                 std::cin >> oppMove;
             }
-            g.makeBotMove(oppMove, false);
+            g.bot_move(oppMove, false);
             std::cout << player;
             std::cout << " Opponent move: " << oppMove << std::endl;
             g.print_board();
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
         if (player == 2) {
             std::string oppMove;
             std::cin >> oppMove;
-            g.makeBotMove(oppMove, false);
+            g.bot_move(oppMove, false);
             std::cout << "Opponent move: " << oppMove << std::endl;
             g.print_board();
             std::cout << std::endl << std::endl;

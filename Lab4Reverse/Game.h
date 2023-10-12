@@ -1,5 +1,5 @@
-#ifndef REVERSI_GAME_H
-#define REVERSI_GAME_H
+#ifndef GAME_H
+#define GAME_H
 
 #include <array>
 #include <vector>
@@ -8,18 +8,19 @@
 #include <sstream>
 
 typedef std::array<std::array<unsigned short, 8>, 8> Board;
+typedef std::map<int, std::vector<std::pair<int, int>>> VP;
 
 class Game {
-    Board currentState = initilize();
+    Board board = initilize();
     unsigned short my_color = 2;
     unsigned short foreign_color = 1;
 public:
     Game(unsigned short ourColor);
 
     Board initilize();
-    int ALPHA_BETA_DEPTH = 5;
+    int DEPTH = 5;
 
-    static bool evalDirection(int dir, int& i, int& j);
+    static bool check_dir(int dir, int& i, int& j);
 
     std::map<int, std::vector<std::pair<int, int>>> get_moves(Board f, int flag) const;
 
@@ -29,9 +30,9 @@ public:
 
     bool switcher = 1;
 
-    Board makeMove(const Board& f, int move, const std::vector<std::pair<int, int>>& affectedCheckers, bool isOurMove = true) const;
+    Board get_move(const Board& f, int move, const std::vector<std::pair<int, int>>& affectedCheckers, bool isOurMove = true) const;
 
-    void makeBotMove(const std::string& botMove, bool isOurMove);
+    void bot_move(const std::string& botMove, bool isOurMove);
 
     static std::string get_str_move(int move);
 
@@ -49,9 +50,9 @@ public:
 
     bool checkMove(std::string move) {
         int parsedMove = move_to_int(move);
-        return get_moves(currentState, 0).count(parsedMove) > 0;
+        return get_moves(board, 0).count(parsedMove) > 0;
     }
 };
 
 
-#endif //REVERSI_GAME_H
+#endif

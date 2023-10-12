@@ -1,6 +1,5 @@
 #include <iostream>
 #include "Game.h"
-#include "../../reversi/Game.h"
 
 //ctor
 Game::Game(unsigned short player)
@@ -38,7 +37,7 @@ bool Game::is_goal(Board f) {
 }
 
 bool Game::enemy_has_moves() {
-    return get_moves(currentState, 0).empty();
+    return get_moves(board, 0).empty();
 }
 
 int Game::move_to_int(std::string move) {
@@ -111,7 +110,7 @@ std::string Game::get_str_move(int move)
 }
 
 void Game::print_board() {
-    auto moves = get_moves(currentState, switcher);
+    auto moves = get_moves(board, switcher);
     switcher = switcher ? 0 : 1;
     std::cout << "  ";
     for (char c = 'A'; c <= 'H'; ++c) {
@@ -121,7 +120,7 @@ void Game::print_board() {
     for (int i = 0; i < 8; ++i) {
         std::cout << i + 1;
         for (int j = 0; j < 8; ++j) {
-            switch (currentState[i][j])
+            switch (board[i][j])
             {
             case 0:
                 if (moves.find(i * 8 + j) != moves.end()) {
@@ -145,8 +144,10 @@ void Game::print_board() {
 }
 
 
-bool Game::evalDirection(int dir, int& i, int& j) {
-    switch (dir) {
+bool Game::check_dir(int dir, int& i, int& j) 
+{
+    switch (dir) 
+    {
     case 1:
         return --j >= 0;
     case 2:
@@ -168,53 +169,68 @@ bool Game::evalDirection(int dir, int& i, int& j) {
     }
 }
 
-std::map<int, std::vector<std::pair<int, int>>> Game::get_moves(Board f, int flag) const {
+bool check_pos(int k, int l)
+{
+    if ((k < 8) && (l < 8) && (k >= 0) && (l >= 0))
+    {
+        return 1;
+    }
+    return 0;
+}
+VP Game::get_moves(Board board, int flag) const 
+{
     int color = flag ? my_color : foreign_color;
-    std::map<int, std::vector<std::pair<int, int>>> res{};
+    VP res{};
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
-            if (f[i][j] == color) {
-                for (int dir = 1; dir <= 8; dir++) {
+            if (board[i][j] == color) {
+                for (int dir = 1; dir <= 8; dir++) 
+                {
                     int k = i, l = j, c = 0;
-                    while (evalDirection(dir, k, l) && (f[k][l] != color) && (f[k][l] != 0)) {
+                    while (check_dir(dir, k, l) && (board[k][l] != color) && (board[k][l] != 0)) 
                         c++;
-                    }
-                    if ((k < 8) && (l < 8) && (k >= 0) && (l >= 0) && (f[k][l] == 0) && (c > 0)) {
+                    if (check_pos(k,l) && (board[k][l] == 0) && (c > 0))
                         res[k * 8 + l].push_back({ i * 8 + j, dir });
-                    }
+
                 }
             }
         }
     }
     return res;
 }
-Board Game::makeMove(const Board& f, int move, const std::vector<std::pair<int, int>>& affectedCheckers, bool isOurMove) const {
-    Board newField;
-    std::copy(f.begin(), f.end(), newField.begin());
-    for (std::pair<int, int> pos : affectedCheckers) {
+Board Game::get_move(const Board& board, int move, const std::vector<std::pair<int, int>>& vect_pair, bool is_my_move) const {
+    Board b;
+    std::copy(board.begin(), board.end(), b.begin());
+    for (auto pos : vect_pair) {
         int i = pos.first / 8, j = pos.first % 8;
-        while ((i != move / 8) || (j != move % 8)) {
-            evalDirection(pos.second, i, j);
-            newField[i][j] = isOurMove ? my_color : foreign_color;
+        while ((i != move / 8) || (j != move % 8)) 
+        {
+            check_dir(pos.second, i, j);
+            b[i][j] = is_my_move ? my_color : foreign_color;
         }
     }
-    return newField;
+    return b;
 }
 
-void Game::makeBotMove(const std::string& botMove, bool isOurMove) {
-    int move = move_to_int(botMove);
-    int currentColor = isOurMove ? my_color : foreign_color;
-    for (int dir = 1; dir <= 8; dir++) {
+
+void Game::bot_move(const std::string& str_move, bool is_my_color) {
+    int move = move_to_int(str_move);
+    int thiscolor = is_my_color ? my_color : foreign_color;
+    for (int dir = 1; dir <= 8; dir++) 
+    {
         int k = move / 8, l = move % 8, c = 0;
-        while (evalDirection(dir, k, l) && (currentState[k][l] != currentColor) && (currentState[k][l] != 0)) {
+        while (check_dir(dir, k, l) && (board[k][l] != thiscolor) && (board[k][l] != 0)) 
+        {
             c++;
         }
-        if ((k < 8) && (l < 8) && (k >= 0) && (l >= 0) && (currentState[k][l] == currentColor) && (c > 0)) {
+        if (check_pos(k, l) && (board[k][l] == thiscolor) && (c > 0))
+        {
             int i = move / 8, j = move % 8;
-            currentState[i][j] = currentColor;
-            while ((i != k) || (j != l)) {
-                evalDirection(dir, i, j);
-                currentState[i][j] = currentColor;
+            board[i][j] = thiscolor;
+            while ((i != k) || (j != l)) 
+            {
+                check_dir(dir, i, j);
+                board[i][j] = thiscolor;
             }
         }
     }
@@ -296,47 +312,68 @@ int Game::h(Board f) const {
     return (int)(1500 * corner + 500 * mobility + 500 * piece_count + 0*stability);
 }
 
-int Game::alphaBeta(Board f, int depth, int alpha, int beta, bool isMax, bool returnMove) {
-    if (depth == 0 || is_goal(f)) {
-        return h(f);
-    }
-    if (isMax) {
-        int value = INT32_MIN;
-        int savedMove = -1;
-        auto availableMoves = get_moves(f, 1);
-        if (availableMoves.empty()) {
-            return alphaBeta(f, depth - 1, alpha, beta, false, false);
-        }
-        for (const std::pair<const int, std::vector<std::pair<int, int>>>& child : availableMoves) {
-            auto childF = makeMove(f, child.first, child.second, true);
+// алгоритм альфа-бета отсечения для оценки лучшего хода в игре
 
-            int childRes = alphaBeta(childF, depth - 1, alpha, beta, false, false);
-            if (value < childRes) {
-                value = childRes;
-                savedMove = child.first;
+int Game::alphaBeta(Board f, int depth, int alpha, int beta, bool is_winner, bool flag) {
+
+    if (depth == 0 || is_goal(f)) {
+        return h(f); // Возвращает оценку текущего состояния
+    }
+
+    if (is_winner) {
+        int is_dangerous_move = -1;
+        auto moves = get_moves(f, 1);
+        int val = INT32_MIN;
+
+        if (moves.empty())
+            return alphaBeta(f, depth - 1, alpha, beta, false, false);
+
+        // Проходим по всем возможным ходам
+        for (const std::pair<const int, std::vector<std::pair<int, int>>>& child : moves) {
+            // Выполняем альфа-бета отсечение для каждого потомка
+            int res = alphaBeta(get_move(f, child.first, child.second, true), depth - 1, alpha, beta, false, false);
+
+            // Обновляем значение лучшего хода и определяем ялвяется ли ход опасным
+            if (val < res) {
+                val = res;
+                is_dangerous_move = child.first;
             }
-            if (value >= beta) {
+
+            // Производим отсечение, если значение превысило beta
+            if (val >= beta) {
                 break;
             }
-            alpha = std::max(alpha, value);
+            // Обновляем значение alpha
+            alpha = std::max(alpha, val);
         }
-        return returnMove ? savedMove : value;
+
+        // Возвращаем опасный ход, если флаг flag установлен, иначе возвращаем значение
+        return flag ? is_dangerous_move : val;
     }
     else {
-        int value = INT32_MAX;
         auto availableMoves = get_moves(f, 0);
-        if (availableMoves.empty()) {
+
+        if (availableMoves.empty())
             return alphaBeta(f, depth - 1, alpha, beta, true, false);
-        }
+
+        int val = INT32_MAX;
+
+        // Проходим по всем возможным ходам
         for (const std::pair<const int, std::vector<std::pair<int, int>>>& child : availableMoves) {
-            Board childF = makeMove(f, child.first, child.second, false);
-            value = std::min(value, alphaBeta(childF, depth - 1, alpha, beta, true, false));
-            if (value <= alpha) {
+            // Выполняем альфа-бета отсечение для каждого потомка
+            val = std::min(val, alphaBeta(get_move(f, child.first, child.second, false), depth - 1, alpha, beta, true, false));
+
+            // Производим отсечение, если значение меньше или равно alpha
+            if (val <= alpha) {
                 break;
             }
-            beta = std::min(beta, value);
+
+            // Обновляем значение beta
+            beta = std::min(beta, val);
         }
-        return value;
+
+        // Возвращаем значение
+        return val;
     }
 }
 
@@ -345,21 +382,21 @@ std::string Game::decideHowToMove() {
     if (state != "") {
         return state;
     }
-    if (get_moves(currentState, 1).size() == 0) {
+    if (get_moves(board, 1).size() == 0) {
         return "skip";
     }
-    return get_str_move(alphaBeta(currentState, ALPHA_BETA_DEPTH, INT32_MIN, INT32_MAX, true, true));
+    return get_str_move(alphaBeta(board, DEPTH, INT32_MIN, INT32_MAX, true, true));
 }
 
 std::string Game::get_winner() {
-    if (is_goal(currentState)) {
+    if (is_goal(board)) {
         int cntOurs = 0, cntOpponent = 0;
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
-                if (currentState[i][j] == my_color) {
+                if (board[i][j] == my_color) {
                     cntOurs++;
                 }
-                else if (currentState[i][j] == foreign_color) {
+                else if (board[i][j] == foreign_color) {
                     cntOpponent++;
                 }
             }
